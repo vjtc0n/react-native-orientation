@@ -6,10 +6,13 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Point;
 import android.hardware.SensorManager;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Display;
 import android.view.OrientationEventListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
+
 import javax.annotation.Nullable;
 
 import com.facebook.react.bridge.Arguments;
@@ -46,18 +49,20 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
         final ReactApplicationContext ctx = reactContext;
 
         mOrientations = isLandscapeDevice() ? ORIENTATIONS_LANDSCAPE_DEVICE : ORIENTATIONS_PORTRAIT_DEVICE;
+        Log.d("mOrientations", mOrientations.toString());
 
         mOrientationEventListener = new OrientationEventListener(reactContext,
                 SensorManager.SENSOR_DELAY_NORMAL) {
             @Override
             public void onOrientationChanged(int orientationValue) {
+                Log.d("onOrientationChanged", orientationValue + "");
                 if (!mHostActive || isDeviceOrientationLocked() || !ctx.hasActiveCatalystInstance())
                     return;
 
                 mOrientationValue = orientationValue;
 
-                if (mOrientation != null && mSpecificOrientation != null) {
-                    final int halfSector = ACTIVE_SECTOR_SIZE / 2;
+                if (mOrientation != null || mSpecificOrientation != null) {
+                    final int halfSector = ACTIVE_SECTOR_SIZE;
                     if ((orientationValue % 90) > halfSector
                             && (orientationValue % 90) < (90 - halfSector)) {
                         return;
@@ -70,9 +75,14 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
                 final DeviceEventManagerModule.RCTDeviceEventEmitter deviceEventEmitter = ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
 
                 if (!orientation.equals(mOrientation)) {
+                    String tempName = orientation;
+                    Log.d("Change","before: "+ mOrientation +" after: "+ orientation);
+                    if(orientation == "UNKNOWN" && mOrientation != "UNKNOWN" && mOrientation != null){
+                        tempName = mOrientation;
+                    }
                     mOrientation = orientation;
                     WritableMap params = Arguments.createMap();
-                    params.putString("orientation", orientation);
+                    params.putString("orientation", tempName);
                     deviceEventEmitter.emit("orientationDidChange", params);
                 }
 
@@ -203,8 +213,24 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
 
     private String getSpecificOrientationString(int orientationValue) {
         if (orientationValue < 0) return ORIENTATION_UNKNOWN;
-        final int index = (int) ((float) orientationValue / 90.0 + 0.5) % 4;
-        return mOrientations[index];
+//        final int index = (int) ((float) orientationValue / 90.0 + 0.5) % 4;
+        int index =0 ;
+        if(orientationValue <295 && orientationValue >= 257){
+            return LANDSCAPE_LEFT;
+        }
+        if(orientationValue > 67 && orientationValue <=  157){
+            return LANDSCAPE_RIGHT;
+        }
+        if(orientationValue > 337 || orientationValue < 67){
+            return  PORTRAIT;
+        }
+
+        if(orientationValue > 157 || orientationValue < 257){
+            return  PORTRAIT_UPSIDEDOWN;
+        }
+        return  ORIENTATION_UNKNOWN;
+//        Log.d("Orientaion string", "getSpecificOrientationString: "+ " "+index+ " "+mOrientations[index]);
+//        return mOrientations[index];
     }
 
     private String getOrientationString(int orientationValue) {
