@@ -76,8 +76,8 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
 
                 if (!orientation.equals(mOrientation)) {
                     String tempName = orientation;
-                    Log.d("Change","before: "+ mOrientation +" after: "+ orientation);
-                    if(orientation == "UNKNOWN" && mOrientation != "UNKNOWN" && mOrientation != null){
+                    Log.d("thay doi","ban dau: "+ mOrientation +" sau: "+ orientation);
+                    if(orientation == "EQUAL_BEFORE" && mOrientation != null ){
                         tempName = mOrientation;
                     }
                     mOrientation = orientation;
@@ -212,23 +212,24 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
     }
 
     private String getSpecificOrientationString(int orientationValue) {
-        if (orientationValue < 0) return ORIENTATION_UNKNOWN;
+        String o = "EQUAL_BEFORE";
+        if (orientationValue < 0) return o =  ORIENTATION_UNKNOWN;
 //        final int index = (int) ((float) orientationValue / 90.0 + 0.5) % 4;
         int index =0 ;
-        if(orientationValue <295 && orientationValue >= 257){
-            return LANDSCAPE_LEFT;
+        if(orientationValue <292 && orientationValue >= 247){
+            o = LANDSCAPE_LEFT;
         }
-        if(orientationValue > 67 && orientationValue <=  157){
-            return LANDSCAPE_RIGHT;
+        if(orientationValue > 67 && orientationValue <=  112){
+            o = LANDSCAPE_RIGHT;
         }
-        if(orientationValue > 337 || orientationValue < 67){
-            return  PORTRAIT;
+        if(orientationValue > 337 || orientationValue < 25){
+            o =  PORTRAIT;
         }
 
-        if(orientationValue > 157 || orientationValue < 257){
-            return  PORTRAIT_UPSIDEDOWN;
+        if(orientationValue > 157 && orientationValue < 202){
+            o=  PORTRAIT_UPSIDEDOWN;
         }
-        return  ORIENTATION_UNKNOWN;
+        return o;
 //        Log.d("Orientaion string", "getSpecificOrientationString: "+ " "+index+ " "+mOrientations[index]);
 //        return mOrientations[index];
     }
@@ -254,6 +255,8 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
             case PORTRAIT:
             case PORTRAIT_UPSIDEDOWN:
                 return PORTRAIT;
+            case "EQUAL_BEFORE":
+                return "EQUAL_BEFORE";
             default:
                 return ORIENTATION_UNKNOWN;
         }
