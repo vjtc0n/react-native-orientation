@@ -28,6 +28,7 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
     final OrientationEventListener mOrientationEventListener;
     private Integer mOrientationValue;
     private String mOrientation;
+    private String mOrientationInit;
     private String mSpecificOrientation;
     final private String[] mOrientations;
 
@@ -49,6 +50,7 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
         final ReactApplicationContext ctx = reactContext;
 
         mOrientations = isLandscapeDevice() ? ORIENTATIONS_LANDSCAPE_DEVICE : ORIENTATIONS_PORTRAIT_DEVICE;
+        mOrientationInit = isLandscapeDevice() ? LANDSCAPE : PORTRAIT;
         Log.d("mOrientations", mOrientations.toString());
 
         mOrientationEventListener = new OrientationEventListener(reactContext,
@@ -120,7 +122,10 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
     public String getName() {
         return "Orientation";
     }
-
+    @ReactMethod
+    public void getInitialOrientation(Callback callback){
+        callback.invoke(null, mOrientationInit);
+    }
     @ReactMethod
     public void getOrientation(Callback callback) {
         callback.invoke(null, mOrientation);
