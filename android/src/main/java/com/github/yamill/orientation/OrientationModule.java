@@ -23,6 +23,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import android.view.Display;
 
 public class OrientationModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
     final OrientationEventListener mOrientationEventListener;
@@ -31,6 +32,7 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
     private String mOrientationInit;
     private String mSpecificOrientation;
     final private String[] mOrientations;
+    int currentOrientation = 0;
 
     private boolean mHostActive = false;
 
@@ -79,7 +81,7 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
                 if (!orientation.equals(mOrientation)) {
                     String tempName = orientation;
                     Log.d("thay doi","ban dau: "+ mOrientation +" sau: "+ orientation);
-                    if(orientation == "EQUAL_BEFORE" && mOrientation != null ){
+                    if(orientation =="UNKNOWN" && mOrientation != null ){
                         tempName = mOrientation;
                     }
                     mOrientation = orientation;
@@ -217,23 +219,46 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
     }
 
     private String getSpecificOrientationString(int orientationValue) {
-        String o = "EQUAL_BEFORE";
-        if (orientationValue < 0) return o =  ORIENTATION_UNKNOWN;
-//        final int index = (int) ((float) orientationValue / 90.0 + 0.5) % 4;
-        int index =0 ;
-        if(orientationValue <292 && orientationValue >= 247){
-            o = LANDSCAPE_LEFT;
-        }
-        if(orientationValue > 67 && orientationValue <=  112){
+        String o= "";
+//        if (orientationValue < 0) return o =  ORIENTATION_UNKNOWN;
+////        final int index = (int) ((float) orientationValue / 90.0 + 0.5) % 4;
+//        int index =0 ;
+//        if(orientationValue <292 && orientationValue >= 247){
+//            o = LANDSCAPE_LEFT;
+//        }
+//        if(orientationValue > 67 && orientationValue <=  112){
+//            o = LANDSCAPE_RIGHT;
+//        }
+//        if(orientationValue > 337 || orientationValue < 25){
+//            o =  PORTRAIT;
+//        }
+//
+//        if(orientationValue > 157 && orientationValue < 202){
+//            o=  PORTRAIT_UPSIDEDOWN;
+//        }
+        if (((orientationValue >= 0) && (orientationValue < 25)) || (orientationValue > 335)){
+            o = PORTRAIT;
+            orientationValue=0;
+        }else if ((orientationValue > 68) && (orientationValue <= 180))  {
             o = LANDSCAPE_RIGHT;
+            orientationValue=90;
         }
-        if(orientationValue > 337 || orientationValue < 25){
-            o =  PORTRAIT;
+        else if ((orientationValue > 180) && (orientationValue < 295)) {
+            o = LANDSCAPE_LEFT;
+            orientationValue=180;
         }
-
-        if(orientationValue > 157 && orientationValue < 202){
-            o=  PORTRAIT_UPSIDEDOWN;
+//        else if((orientationValue > 225) && (orientationValue <= 315)) {
+//            o= LANDSCAPE_LEFT;
+//            orientationValue=270;
+//        }
+        else {
+            orientationValue=0;
         }
+        currentOrientation = orientationValue;
+//        if(orientationValue==mOrientation)
+//            return ;
+//        mOrientation=rotation;
+//        updateCameraOrientation();
         return o;
 //        Log.d("Orientaion string", "getSpecificOrientationString: "+ " "+index+ " "+mOrientations[index]);
 //        return mOrientations[index];
@@ -260,8 +285,6 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
             case PORTRAIT:
             case PORTRAIT_UPSIDEDOWN:
                 return PORTRAIT;
-            case "EQUAL_BEFORE":
-                return "EQUAL_BEFORE";
             default:
                 return ORIENTATION_UNKNOWN;
         }
